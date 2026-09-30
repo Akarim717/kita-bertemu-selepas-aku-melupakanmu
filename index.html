@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#151310">
+  <title>Kita Bertemu Selepas Aku Melupakanmu</title>
+  <style>
+    :root {
+      --ink: #241b14;
+      --ink-deep: #12110f;
+      --paper: #eee3c8;
+      --paper-deep: #e5d6b5;
+      --gold: #bd8a39;
+      --gold-soft: #d9ba73;
+      --red: #6f2721;
+      --line: rgba(49, 35, 24, .15);
+      --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Baskerville, Georgia, serif;
+      --sans: "Avenir Next", Avenir, "Helvetica Neue", Helvetica, sans-serif;
+      --body-size: 20px;
+      --header-h: 108px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--ink-deep);
+      color: var(--ink);
+      font-family: var(--serif);
+      overflow: hidden;
+    }
+    button { font: inherit; }
+
+    .screen {
+      position: fixed;
+      inset: 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: opacity .55s ease, transform .55s ease, visibility .55s;
+    }
+    .screen.is-active {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+    }
+
+    /* COVER */
+    .cover {
+      isolation: isolate;
+      min-height: 100dvh;
+      background: #0e1110;
+      color: #f5ecd7;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -3;
+      background: url("assets/cover-inara-ilham-v3.jpg") 50% 46% / cover no-repeat;
+      filter: saturate(.88) brightness(.98) contrast(1.02);
+      transform: scale(1.015);
+    }
+    .cover::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        linear-gradient(90deg, rgba(18, 17, 14, .8) 0%, rgba(18, 17, 14, .58) 30%, rgba(18, 17, 14, .14) 54%, rgba(18, 17, 14, .02) 100%),
+        linear-gradient(0deg, rgba(18, 17, 14, .38), transparent 38%);
+    }
+    .rain {
+      position: absolute;
+      inset: -12%;
+      z-index: -1;
+      opacity: .24;
+      background: repeating-linear-gradient(105deg, transparent 0 18px, rgba(232, 239, 235, .22) 19px, transparent 20px 37px);
+      transform: skewX(-7deg);
+      animation: rain 10s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes rain { to { background-position: 0 560px; } }
+
+    .cover-copy {
+      width: min(900px, 60vw);
+      height: 100%;
+      min-height: 100dvh;
+      padding: clamp(46px, 7vw, 126px) clamp(30px, 5vw, 110px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .kicker,
+    .eyebrow,
+    .meta,
+    .author,
+    .scene-label,
+    .nav-button,
+    .chapter-counter {
+      font-family: var(--sans);
+      text-transform: uppercase;
+      letter-spacing: .2em;
+      font-weight: 700;
+    }
+    .kicker {
+      color: var(--gold-soft);
+      font-size: clamp(11px, .9vw, 15px);
+      margin-bottom: clamp(28px, 4vh, 58px);
+    }
+    .cover h1 {
+      margin: 0;
+      max-width: 870px;
+      font-size: clamp(64px, 7.8vw, 142px);
+      line-height: .83;
+      letter-spacing: -.055em;
+      font-weight: 400;
+      text-wrap: balance;
+    }
+    .cover h1 span {
+      display: block;
+      margin-top: .25em;
+      color: var(--gold-soft);
+      font-size: .53em;
+      line-height: 1.02;
+      letter-spacing: -.025em;
+      font-style: italic;
+    }
+    .tagline {
+      margin: clamp(34px, 5vh, 68px) 0 0;
+      padding-left: 24px;
+      border-left: 2px solid var(--gold-soft);
+      max-width: 500px;
+      font-size: clamp(18px, 1.65vw, 28px);
+      line-height: 1.55;
+      color: rgba(255, 249, 234, .9);
+    }
+    .open-book {
+      margin-top: 42px;
+      border: 0;
+      border-radius: 0;
+      background: var(--gold-soft);
+      color: #1b1711;
+      min-width: 260px;
+      min-height: 76px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .25s ease, transform .25s ease;
+    }
+    .open-book:hover { background: #ead08e; transform: translateY(-2px); }
+    .author {
+      position: absolute;
+      left: clamp(30px, 5vw, 110px);
+      bottom: 48px;
+      color: rgba(255,255,255,.66);
+      font-size: 12px;
+    }
+    .synopsis-link {
+      position: absolute;
+      right: 52px;
+      bottom: 44px;
+      padding-bottom: 10px;
+      border: 0;
+      color: #f5ecd7;
+      background: transparent;
+      border-bottom: 1px solid rgba(245,236,215,.6);
+      font: 13px var(--sans);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .synopsis-link:hover { color: var(--gold-soft); border-bottom-color: var(--gold-soft); }
+    .synopsis-link:focus-visible,
+    .close:focus-visible,
+    .synopsis-start:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
+
+    /* READER */
+    .reader {
+      min-height: 100dvh;
+      background: var(--paper);
+    }
+    .reader-header {
+      height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 0 clamp(22px, 3vw, 56px);
+      background: var(--paper);
+      border-bottom: 1px solid rgba(36, 27, 20, .13);
+      box-shadow: 0 3px 12px rgba(39, 30, 19, .08);
+      position: relative;
+      z-index: 5;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      min-width: 0;
+    }
+    .bookmark {
+      align-self: flex-start;
+      width: 64px;
+      height: 82px;
+      display: grid;
+      place-items: center;
+      background: #111916;
+      color: var(--gold-soft);
+      font-size: 24px;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
+      cursor: pointer;
+      border: 0;
+    }
+    .brand-title {
+      font-size: clamp(18px, 1.4vw, 28px);
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .brand-title em {
+      display: block;
+      margin-top: 5px;
+      color: #69523a;
+      font-size: .64em;
+    }
+    .reader-actions { display: flex; gap: 12px; }
+    .nav-button {
+      min-width: 62px;
+      min-height: 56px;
+      padding: 0 18px;
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      font-size: 12px;
+      transition: background .2s ease, color .2s ease;
+    }
+    .nav-button:hover,
+    .nav-button:focus-visible { background: rgba(189, 138, 57, .12); outline: none; }
+    .nav-button.primary {
+      min-width: 190px;
+      background: #2a2017;
+      color: #f7ecd5;
+      border-color: #2a2017;
+    }
+
+    .reader-grid {
+      height: calc(100dvh - var(--header-h));
+      display: grid;
+      grid-template-columns: 46% 54%;
+    }
+    .visual-panel {
+      position: relative;
+      overflow: hidden;
+      background: #111;
+      color: #fff8e9;
+    }
+    .visual-panel img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(.68) saturate(.78) contrast(1.04);
+      transform: scale(1.01);
+    }
+    .visual-panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(5,8,7,.1) 35%, rgba(5,7,6,.92) 100%);
+    }
+    .chapter-counter {
+      position: absolute;
+      z-index: 2;
+      top: 52px;
+      left: 52px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+      color: rgba(255,255,255,.88);
+    }
+    .chapter-counter i { width: 72px; height: 1px; background: rgba(255,255,255,.62); }
+    .scene-caption {
+      position: absolute;
+      z-index: 2;
+      left: clamp(36px, 5vw, 92px);
+      right: 8%;
+      bottom: 62px;
+    }
+    .scene-label { color: var(--gold-soft); font-size: 12px; }
+    .scene-caption h2 {
+      max-width: 620px;
+      margin: 24px 0 0;
+      font-size: clamp(38px, 4vw, 72px);
+      line-height: 1;
+      font-weight: 400;
+      letter-spacing: -.035em;
+      text-wrap: balance;
+    }
+
+    .text-panel {
+      overflow-y: auto;
+      background-color: var(--paper);
+      background-image: radial-gradient(rgba(83,61,36,.12) .7px, transparent .7px);
+      background-size: 7px 7px;
+      transition: background .3s ease, color .3s ease;
+      scrollbar-color: var(--gold) transparent;
+    }
+    .chapter {
+      width: min(790px, calc(100% - 88px));
+      margin: 0 auto;
+      padding: clamp(62px, 8vh, 108px) 0 120px;
+    }
+    .eyebrow { color: var(--gold); font-size: 13px; }
+    .chapter h1 {
+      margin: 24px 0 16px;
+      max-width: 720px;
+      font-size: clamp(58px, 6vw, 104px);
+      line-height: .94;
+      letter-spacing: -.055em;
+      font-weight: 400;
+      text-wrap: balance;
+    }
+    .meta {
+      margin-bottom: 68px;
+      color: #776956;
+      font-size: 11px;
+    }
+    .meta span + span::before { content: "•"; margin: 0 14px; color: var(--gold); }
+    .prose { font-size: var(--body-size); line-height: 1.86; }
+    .prose p { margin: 0 0 1.15em; text-wrap: pretty; }
+    .prose p:first-child::first-letter {
+      float: left;
+      margin: .05em .12em 0 0;
+      color: var(--gold);
+      font-size: 5.1em;
+      line-height: .69;
+    }
+    .continue-note {
+      margin-top: 58px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      color: #7d6b52;
+      font: 11px var(--sans);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .chapter-nav {
+      margin-top: 64px;
+      padding-top: 28px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+    }
+    .chapter-nav button {
+      min-height: 54px;
+      padding: 0 20px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: inherit;
+      font: 700 11px var(--sans);
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .chapter-nav button:hover:not(:disabled) { background: rgba(189, 138, 57, .12); }
+    .chapter-nav button:disabled { opacity: .3; cursor: default; }
+
+    /* CONTENTS DRAWER */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      background: rgba(10, 9, 7, .55);
+      opacity: 0;
+      visibility: hidden;
+      transition: .3s ease;
+    }
+    .drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: min(520px, 92vw);
+      height: 100%;
+      padding: 46px;
+      background: #efe3c7;
+      transform: translateX(100%);
+      transition: transform .35s ease;
+      overflow-y: auto;
+    }
+    .drawer-backdrop.open { opacity: 1; visibility: visible; }
+    .drawer-backdrop.open .drawer { transform: none; }
+    .drawer-head { display: flex; justify-content: space-between; align-items: center; }
+    .drawer h2 { margin: 0; font-size: 42px; font-weight: 400; }
+    .close { border: 0; background: none; font: 28px var(--sans); cursor: pointer; }
+    .synopsis-drawer {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+    .synopsis-kicker {
+      margin-bottom: 22px;
+      color: var(--gold);
+      font: 700 11px var(--sans);
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+    .synopsis-copy {
+      margin-top: 48px;
+      font-size: clamp(19px, 1.55vw, 25px);
+      line-height: 1.65;
+    }
+    .synopsis-copy p { margin: 0 0 1.25em; }
+    .synopsis-start {
+      align-self: flex-start;
+      min-width: 210px;
+      min-height: 58px;
+      margin-top: 12px;
+      padding: 0 24px;
+      border: 0;
+      background: #2a2017;
+      color: #f5ecd7;
+      font: 800 12px var(--sans);
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .toc { list-style: none; padding: 24px 0 0; margin: 0; }
+    .toc li { border-top: 1px solid var(--line); }
+    .toc button {
+      width: 100%;
+      padding: 18px 0;
+      border: 0;
+      background: none;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      text-align: left;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .toc button:disabled { opacity: .42; cursor: default; }
+    .toc small { font: 11px var(--sans); color: var(--gold); }
+    .toc span { font-size: 18px; }
+
+    body.night {
+      --paper: #171816;
+      --ink: #e9dfca;
+      --line: rgba(235, 223, 198, .16);
+    }
+    body.night .reader-header,
+    body.night .text-panel,
+    body.night .drawer { background-color: #171816; color: #e9dfca; }
+    body.night .brand-title em,
+    body.night .meta,
+    body.night .continue-note { color: #ac9e86; }
+    body.night .nav-button { color: #e9dfca; }
+    body.night .nav-button.primary { background: var(--gold-soft); color: #18130d; }
+    body.night .toc button { color: #e9dfca; }
+
+    @media (max-width: 900px) {
+      :root { --header-h: 82px; }
+      body { overflow: auto; }
+      .cover-copy { width: 100%; padding: 48px 24px 120px; justify-content: flex-end; }
+      .cover h1 { font-size: clamp(58px, 16vw, 90px); }
+      .cover::before { background-position: 63% center; }
+      .cover::after { background: linear-gradient(0deg, rgba(18,17,14,.82) 0%, rgba(18,17,14,.58) 46%, rgba(18,17,14,.06) 100%); }
+      .author { left: 24px; bottom: 32px; }
+      .synopsis-link { right: 24px; bottom: 29px; }
+      .reader-header { position: sticky; top: 0; }
+      .bookmark { width: 48px; height: 63px; font-size: 18px; }
+      .brand-title { font-size: 17px; white-space: normal; }
+      .reader-actions .font-control { display: none; }
+      .nav-button { min-width: 48px; min-height: 48px; padding: 0 10px; }
+      .nav-button.primary { min-width: auto; font-size: 0; }
+      .nav-button.primary::after { content: "ISI"; font-size: 11px; }
+      .reader-grid { height: auto; min-height: calc(100dvh - var(--header-h)); grid-template-columns: 1fr; }
+      .visual-panel { min-height: 56dvh; }
+      .scene-caption { left: 28px; bottom: 34px; }
+      .chapter-counter { top: 30px; left: 28px; }
+      .chapter { width: min(100% - 44px, 720px); padding-top: 56px; }
+      .chapter h1 { font-size: clamp(52px, 15vw, 82px); }
+      .meta { margin-bottom: 46px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main id="cover" class="screen cover is-active" aria-label="Kulit novella">
+    <div class="rain" aria-hidden="true"></div>
+    <div class="cover-copy">
+      <div class="kicker">Sebuah cinta yang hilang daripada ingatan</div>
+      <h1>Kita Bertemu <span>Selepas Aku Melupakanmu</span></h1>
+      <p class="tagline">Tubuhnya masih mengenali lelaki yang tidak lagi diingati hatinya.</p>
+      <button class="open-book" id="openBook">Buka Buku <span aria-hidden="true">→</span></button>
+    </div>
+    <div class="author">Abd Karim Alias&nbsp;&nbsp;·&nbsp;&nbsp;2026</div>
+    <button class="synopsis-link" id="openSynopsis" aria-haspopup="dialog" aria-controls="synopsisBackdrop" aria-expanded="false">Sinopsis</button>
+  </main>
+
+  <main id="reader" class="screen reader" aria-label="Pembaca novella">
+    <header class="reader-header">
+      <div class="brand">
+        <button class="bookmark" id="homeButton" aria-label="Kembali ke kulit">KM</button>
+        <div class="brand-title">Kita Bertemu <em>Selepas Aku Melupakanmu</em></div>
+      </div>
+      <nav class="reader-actions" aria-label="Kawalan membaca">
+        <button class="nav-button font-control" id="smaller" aria-label="Kecilkan teks">A−</button>
+        <button class="nav-button font-control" id="larger" aria-label="Besarkan teks">A+</button>
+        <button class="nav-button" id="night">Malam</button>
+        <button class="nav-button primary" id="contents">Isi Kandungan</button>
+      </nav>
+    </header>
+
+    <div class="reader-grid">
+      <aside class="visual-panel" aria-label="Ilustrasi bab">
+        <img id="chapterImage" src="assets/bab-01.jpg" alt="Nadira berdiri di pintu Studio Cahaya ketika hujan, memandang ke arah bilik gelap bercahaya merah">
+        <div class="chapter-counter"><span id="chapterNumber">01</span><i></i><span>14</span></div>
+        <div class="scene-caption">
+          <div class="scene-label">Adegan utama</div>
+          <h2 id="sceneTitle">Pintu itu masih mengenali tanganku.</h2>
+        </div>
+      </aside>
+
+      <section class="text-panel" id="textPanel">
+        <article class="chapter">
+          <div class="eyebrow" id="chapterEyebrow">Bab Satu</div>
+          <h1 id="chapterTitle">Pintu Bilik Gelap</h1>
+          <div class="meta"><span>Bab lengkap</span><span id="readingTime">9 minit bacaan</span></div>
+          <div class="prose" id="prose"><p>Memuatkan bab…</p></div>
+          <div class="chapter-nav">
+            <button id="previousChapter" disabled>← Bab sebelumnya</button>
+            <button id="nextChapter">Bab seterusnya →</button>
+          </div>
+        </article>
+      </section>
+    </div>
+  </main>
+
+  <div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true">
+    <aside class="drawer" aria-label="Isi kandungan">
+      <div class="drawer-head">
+        <h2>Isi Kandungan</h2>
+        <button class="close" id="closeDrawer" aria-label="Tutup">×</button>
+      </div>
+      <ol class="toc">
+        <li><button data-chapter="0"><small>01</small><span>Pintu Bilik Gelap</span></button></li>
+        <li><button data-chapter="1"><small>02</small><span>Kopi Tanpa Gula</span></button></li>
+        <li><button data-chapter="2"><small>03</small><span>Bahagian yang Digunting</span></button></li>
+        <li><button data-chapter="3"><small>04</small><span>Dua Puluh Bulan</span></button></li>
+        <li><button data-chapter="4"><small>05</small><span>Nama di Belakang Foto</span></button></li>
+        <li><button data-chapter="5"><small>06</small><span>Lelaki yang Membawa Payung</span></button></li>
+        <li><button data-chapter="6"><small>07</small><span>Cincin dalam Tin Biskut</span></button></li>
+        <li><button data-chapter="7"><small>08</small><span>Bingkai Ketiga Belas</span></button></li>
+        <li><button data-chapter="8"><small>09</small><span>Malam Aku Meninggalkanmu</span></button></li>
+        <li><button data-chapter="9"><small>10</small><span>Rakaman yang Terputus</span></button></li>
+        <li><button data-chapter="10"><small>11</small><span>Jalan ke Bukit Gantang</span></button></li>
+        <li><button data-chapter="11"><small>12</small><span>Suara Sebelum Hujan</span></button></li>
+        <li><button data-chapter="12"><small>13</small><span>Negatif Terakhir</span></button></li>
+        <li><button data-chapter="13"><small>14</small><span>Gambar Baru</span></button></li>
+      </ol>
+    </aside>
+  </div>
+
+  <div class="drawer-backdrop" id="synopsisBackdrop" aria-hidden="true">
+    <aside class="drawer synopsis-drawer" role="dialog" aria-modal="true" aria-labelledby="synopsisTitle">
+      <div class="drawer-head">
+        <h2 id="synopsisTitle">Sinopsis</h2>
+        <button class="close" id="closeSynopsis" aria-label="Tutup sinopsis">×</button>
+      </div>
+      <div class="synopsis-copy">
+        <div class="synopsis-kicker">Sebuah cinta yang hilang daripada ingatan</div>
+        <p>Selepas sebuah kemalangan meragut ingatan dua puluh bulan terakhirnya, Nadira pulang ke Studio Cahaya dan bertemu semula dengan Ilham—lelaki yang mengenal tabiatnya, tahu bagaimana dia minum kopi, dan pernah menyarungkan cincin pada jarinya.</p>
+        <p>Namun Ilham datang ke dalam hidupnya dengan satu tujuan yang disembunyikan. Di sebalik dinding studio, foto lama, kaset rosak dan sebuah bingkai yang hilang menyimpan rahsia kemalangan yang memisahkan dua keluarga.</p>
+        <p>Untuk mengetahui siapa yang berbohong, Nadira perlu menyiasat masa lalu yang tidak lagi dimilikinya—dan memutuskan sama ada cinta boleh bermula semula tanpa menunggu ingatan pulang.</p>
+      </div>
+      <button class="synopsis-start" id="synopsisStart">Mula Membaca</button>
+    </aside>
+  </div>
+
+  <script src="chapters-data.js?v=22"></script>
+  <script>
+    const cover = document.getElementById('cover');
+    const reader = document.getElementById('reader');
+    const textPanel = document.getElementById('textPanel');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const synopsisBackdrop = document.getElementById('synopsisBackdrop');
+    const openSynopsis = document.getElementById('openSynopsis');
+    const closeSynopsis = document.getElementById('closeSynopsis');
+    const chapterImage = document.getElementById('chapterImage');
+    const chapterNumber = document.getElementById('chapterNumber');
+    const sceneTitle = document.getElementById('sceneTitle');
+    const chapterEyebrow = document.getElementById('chapterEyebrow');
+    const chapterTitle = document.getElementById('chapterTitle');
+    const readingTime = document.getElementById('readingTime');
+    const prose = document.getElementById('prose');
+    const previousChapter = document.getElementById('previousChapter');
+    const nextChapter = document.getElementById('nextChapter');
+    let fontSize = 20;
+    let currentChapter = 0;
+
+    const chapters = [
+      {
+        number: '01', label: 'Bab Satu', title: 'Pintu Bilik Gelap', time: '9 minit bacaan',
+        image: 'assets/bab-01.jpg', content: window.NOVELLA_CHAPTERS['01'],
+        alt: 'Nadira berdiri di pintu Studio Cahaya ketika hujan, memandang ke arah bilik gelap bercahaya merah',
+        scene: 'Pintu itu masih mengenali tanganku.'
+      },
+      {
+        number: '02', label: 'Bab Dua', title: 'Kopi Tanpa Gula', time: '9 minit bacaan',
+        image: 'assets/bab-02.jpg', content: window.NOVELLA_CHAPTERS['02'],
+        alt: 'Nadira menyediakan dua cawan kopi sementara Ilham berdiri di seberang meja Studio Cahaya',
+        scene: 'Dia mengingati kopi yang aku sendiri telah lupa.'
+      },
+      {
+        number: '03', label: 'Bab Tiga', title: 'Bahagian yang Digunting', time: '9 minit bacaan',
+        image: 'assets/bab-03.jpg', content: window.NOVELLA_CHAPTERS['03'],
+        alt: 'Nadira menyuluh dokumen hospital dari sisi sementara Kak Su terhenti di tangga Studio Cahaya',
+        scene: 'Yang hilang daripada kertas masih meninggalkan bekas.'
+      },
+      {
+        number: '04', label: 'Bab Empat', title: 'Dua Puluh Bulan', time: '10 minit bacaan',
+        image: 'assets/bab-04.jpg', content: window.NOVELLA_CHAPTERS['04'],
+        alt: 'Nadira dan Ilham menyusun foto, sampul dan pelan dua puluh bulan di atas meja pejabat Ilham',
+        scene: 'Dua puluh bulan kembali sebagai benda yang pernah disentuh.'
+      },
+      {
+        number: '05', label: 'Bab Lima', title: 'Nama di Belakang Foto', time: '8 minit bacaan',
+        image: 'assets/bab-05.jpg', content: window.NOVELLA_CHAPTERS['05'],
+        alt: 'Nadira dan Ilham menemui foto, perakam serta dua kaset dalam ruang tersembunyi ketika Mazlan muncul di pintu bilik gelap',
+        scene: 'Nama di belakang foto membuka ruang yang lebih lama ditutup.'
+      },
+      {
+        number: '06', label: 'Bab Enam', title: 'Lelaki yang Membawa Payung', time: '8 minit bacaan',
+        image: 'assets/bab-06.jpg', content: window.NOVELLA_CHAPTERS['06'],
+        alt: 'Nadira dan Ilham membandingkan cetakan sentuh lama dengan payung hitam bertampal milik Zafran sementara Mazlan dan Kak Su memerhati',
+        scene: 'Satu payung menghubungkan dua lelaki dan satu bingkai yang hilang.'
+      },
+      {
+        number: '07', label: 'Bab Tujuh', title: 'Cincin dalam Tin Biskut', time: '8 minit bacaan',
+        image: 'assets/bab-07.jpg', content: window.NOVELLA_CHAPTERS['07'],
+        alt: 'Kak Su memulangkan cincin pertunangan Nadira daripada sebuah tin biskut lama bersama halaman inventori hospital yang hilang',
+        scene: 'Yang disorok untuk melindungi akhirnya menjadi bukti.'
+      },
+      {
+        number: '08', label: 'Bab Lapan', title: 'Bingkai Ketiga Belas', time: '8 minit bacaan',
+        image: 'assets/bab-08.jpg', content: window.NOVELLA_CHAPTERS['08'],
+        alt: 'Nadira dan Ilham melihat pratonton bingkai ketiga belas pada komputer lama sementara Kak Su dan Mazlan berdiri di belakang',
+        scene: 'Gambar yang hilang masih meninggalkan bayangnya.'
+      },
+      {
+        number: '09', label: 'Bab Sembilan', title: 'Malam Aku Meninggalkanmu', time: '9 minit bacaan',
+        image: 'assets/bab-09.jpg', content: window.NOVELLA_CHAPTERS['09'],
+        alt: 'Nadira membaca fail hitam di pejabat Ilham sementara dua bungkus nasi lemak terhidang di antara mereka',
+        scene: 'Aku pergi kerana tidak tahu di mana bohongnya berakhir.'
+      },
+      {
+        number: '10', label: 'Bab Sepuluh', title: 'Rakaman yang Terputus', time: '7 minit bacaan',
+        image: 'assets/bab-10.jpg', content: window.NOVELLA_CHAPTERS['10'],
+        alt: 'Nadira dan Ilham mendengar kaset lama sementara seorang pembaik radio memeriksa potongan pada pita rakaman',
+        scene: 'Suara mak kembali, lalu terhenti di tempat yang sengaja dipilih.'
+      },
+      {
+        number: '11', label: 'Bab Sebelas', title: 'Jalan ke Bukit Gantang', time: '8 minit bacaan',
+        image: 'assets/bab-11.jpg', content: window.NOVELLA_CHAPTERS['11'],
+        alt: 'Nadira dan Ilham melihat Zafran mengeluarkan kaset ketiga daripada tin ubat lama di rumahnya di Bukit Gantang',
+        scene: 'Di hujung jalan itu, pengakuan lama akhirnya menunjukkan harganya.'
+      },
+      {
+        number: '12', label: 'Bab Dua Belas', title: 'Suara Sebelum Hujan', time: '8 minit bacaan',
+        image: 'assets/bab-12.jpg', content: window.NOVELLA_CHAPTERS['12'],
+        alt: 'Nadira mendengar suaranya sendiri daripada kaset lama sementara Ilham berdiri di sisinya dan Zafran menunggu dekat pintu kedai radio',
+        scene: 'Di hujung suara mak, aku mendengar pilihanku sendiri.'
+      },
+      {
+        number: '13', label: 'Bab Tiga Belas', title: 'Negatif Terakhir', time: '8 minit bacaan',
+        image: 'assets/bab-13.jpg', content: window.NOVELLA_CHAPTERS['13'],
+        alt: 'Nadira mengangkat jalur negatif terakhir di Studio Cahaya sementara Ilham, Kak Su, Mazlan dan Zafran berdepan dengan bukti',
+        scene: 'Gambar terakhir itu tidak bergantung pada ingatan sesiapa.'
+      },
+      {
+        number: '14', label: 'Bab Empat Belas', title: 'Gambar Baru', time: '7 minit bacaan',
+        image: 'assets/bab-14.jpg', content: window.NOVELLA_CHAPTERS['14'],
+        alt: 'Nadira, Ilham, Kak Su dan Zafran mengambil gambar baharu bersama di Studio Cahaya yang telah dibuka semula',
+        scene: 'Kali ini, gambar itu menyimpan hari yang masih kuingat.'
+      }
+    ];
+
+    function inlineMarkdown(value) {
+      return value
+        .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>');
+    }
+
+    function markdownToProse(markdown) {
+      return markdown.split(/\r?\n/)
+        .filter(line => line.trim() && !line.startsWith('#') && !line.startsWith('!['))
+        .map(line => `<p>${inlineMarkdown(line.trim())}</p>`)
+        .join('');
+    }
+
+    function loadChapter(index) {
+      if (index < 0 || index >= chapters.length) return;
+      currentChapter = index;
+      const chapter = chapters[index];
+      chapterNumber.textContent = chapter.number;
+      chapterEyebrow.textContent = chapter.label;
+      chapterTitle.textContent = chapter.title;
+      readingTime.textContent = chapter.time;
+      sceneTitle.textContent = chapter.scene;
+      chapterImage.src = chapter.image;
+      chapterImage.alt = chapter.alt;
+      previousChapter.disabled = index === 0;
+      nextChapter.disabled = index === chapters.length - 1;
+      prose.innerHTML = markdownToProse(chapter.content || 'Teks bab belum tersedia.');
+      textPanel.scrollTop = 0;
+    }
+
+    function showReader() {
+      cover.classList.remove('is-active');
+      reader.classList.add('is-active');
+      loadChapter(currentChapter);
+    }
+    function showCover() {
+      reader.classList.remove('is-active');
+      cover.classList.add('is-active');
+    }
+    function setDrawer(open) {
+      if (open) setSynopsis(false, false);
+      drawerBackdrop.classList.toggle('open', open);
+      drawerBackdrop.setAttribute('aria-hidden', String(!open));
+    }
+    function setSynopsis(open, restoreFocus = true) {
+      synopsisBackdrop.classList.toggle('open', open);
+      synopsisBackdrop.setAttribute('aria-hidden', String(!open));
+      openSynopsis.setAttribute('aria-expanded', String(open));
+      if (open) {
+        setDrawer(false);
+        closeSynopsis.focus();
+      } else if (restoreFocus && document.activeElement === closeSynopsis) {
+        openSynopsis.focus();
+      }
+    }
+
+    document.getElementById('openBook').addEventListener('click', showReader);
+    document.getElementById('homeButton').addEventListener('click', showCover);
+    openSynopsis.addEventListener('click', () => setSynopsis(true));
+    closeSynopsis.addEventListener('click', () => setSynopsis(false));
+    document.getElementById('synopsisStart').addEventListener('click', () => {
+      setSynopsis(false, false);
+      showReader();
+    });
+    synopsisBackdrop.addEventListener('click', (event) => {
+      if (event.target === synopsisBackdrop) setSynopsis(false);
+    });
+    document.getElementById('contents').addEventListener('click', () => setDrawer(true));
+    document.getElementById('closeDrawer').addEventListener('click', () => setDrawer(false));
+    drawerBackdrop.addEventListener('click', (event) => {
+      if (event.target === drawerBackdrop) setDrawer(false);
+    });
+    document.getElementById('night').addEventListener('click', (event) => {
+      document.body.classList.toggle('night');
+      event.currentTarget.textContent = document.body.classList.contains('night') ? 'Siang' : 'Malam';
+    });
+    document.getElementById('smaller').addEventListener('click', () => {
+      fontSize = Math.max(16, fontSize - 2);
+      document.documentElement.style.setProperty('--body-size', `${fontSize}px`);
+    });
+    document.getElementById('larger').addEventListener('click', () => {
+      fontSize = Math.min(28, fontSize + 2);
+      document.documentElement.style.setProperty('--body-size', `${fontSize}px`);
+    });
+    previousChapter.addEventListener('click', () => loadChapter(currentChapter - 1));
+    nextChapter.addEventListener('click', () => loadChapter(currentChapter + 1));
+    document.querySelectorAll('[data-chapter]').forEach(button => {
+      button.addEventListener('click', () => {
+        loadChapter(Number(button.dataset.chapter));
+        setDrawer(false);
+      });
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        if (synopsisBackdrop.classList.contains('open')) setSynopsis(false);
+        else setDrawer(false);
+      }
+    });
+  </script>
+</body>
+</html>
